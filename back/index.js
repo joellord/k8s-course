@@ -12,8 +12,10 @@ const mysql = require("mysql");
 
 const APIKEYS = require("./apiKeys.js");
 
+const MYSQL_HOST = "localhost";
+
 const connection = mysql.createConnection({
-  host: "localhost",
+  host: MYSQL_HOST,
   user: "root",
   password: "root",
   database: "images"
