@@ -10,14 +10,13 @@ const pngFileStream = require("png-file-stream");
 const jimp = require("jimp");
 const mysql = require("mysql");
 
-const APIKEYS = require("./apiKeys.js");
-
-const MYSQL_HOST = "localhost";
+const APIKEYS = require("./apiKeys");
+const config = require("./config");
 
 const connection = mysql.createConnection({
-  host: MYSQL_HOST,
-  user: "root",
-  password: "root",
+  host: config.MYSQL_HOST,
+  user: config.MYSQL_USER,
+  password: config.MYSQL_PASS,
   database: "images"
 }); 
 connection.connect();
