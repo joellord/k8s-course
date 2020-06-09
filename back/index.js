@@ -10,6 +10,8 @@ const pngFileStream = require("png-file-stream");
 const jimp = require("jimp");
 const mysql = require("mysql");
 
+const APIKEYS = require("./apiKeys.js");
+
 const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -19,10 +21,6 @@ const connection = mysql.createConnection({
 connection.connect();
 
 const app = express();
-
-const APIKEYS = {
-  GIPHY: "XdH4LFG7cQeNiS3D6M1rVBYWee3j3hG6"
-};
 
 let serverStatus = {
   status: "running",
