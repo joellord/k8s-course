@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello
+spec:
+  containers:
+  - name: hello
+    image: alpine
+    command: ["sh", "-c", "echo Hello World && sleep 120"]

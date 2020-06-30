@@ -20,14 +20,16 @@
 </template>
 
 <script>
+import config from "../config.json";
+
 export default {
   name: "ImageList",
   data: function() {
-    fetch("http://localhost:3000/saved/images")
+    fetch(`${config.BASE_URL}/saved/images`)
       .then(resp => resp.json())
       .then(data => {
         this.images = data.map(i => {
-          i.url = "http://localhost:3000/image/" + i.filename;
+          i.url = `${config.BASE_URL}/image/${i.filename}`;
           return i;
         });
       });

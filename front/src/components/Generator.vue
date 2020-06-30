@@ -52,6 +52,8 @@
 </template>
 
 <script>
+import config from "../config.json";
+
 const randomId = () => {
   const list = "0123456789abcdef";
   let id = "";
@@ -72,13 +74,13 @@ export default {
   methods: {
     getBlankImage: function() {
       this.file = `${userId}-${(new Date()).getTime()}`;
-      this.blankImg = `http://localhost:3000/blankimage/${this.searchTerm}/${this.file}`;
+      this.blankImg = `${config.BASE_URL}/blankimage/${this.searchTerm}/${this.file}`;
       this.step = 2;
     },
     generateImage: function() {
       this.showBlankImage = false;
       this.showProcessingImage = true;
-      this.captionImg = `http://localhost:3000/caption/${this.file}/${this.caption}`;
+      this.captionImg = `${config.BASE_URL}/caption/${this.file}/${this.caption}`;
       this.step = 3;
     },
     gotCaptionedImage: function() {
@@ -87,7 +89,7 @@ export default {
       this.step = 4;
     },
     saveToGallery: function() {
-      fetch(`http://localhost:3000/image/${this.caption}/${this.file}`, {method: "post"})
+      fetch(`${config.BASE_URL}/image/${this.caption}/${this.file}`, {method: "post"})
         .then(() => {
           this.step = 5;
           this.showCaptionedImage = false;

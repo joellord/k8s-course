@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import config from "../config.json";
+
 const randomId = () => {
   const list = "0123456789abcdef";
   let id = "";
@@ -39,7 +41,7 @@ export default {
   methods: {
     getImage: function() {
       let requestId = `${userId}-${(new Date()).getTime()}`;
-      let url = `http://localhost:3000/image/${this.searchTerm}/${requestId}`;
+      let url = `${config.BASE_URL}/image/${this.searchTerm}/${requestId}`;
       this.imgsrc = url;
       this.imgid = requestId;
       console.log(`Got ${requestId}, stored imgid ${this.imgid}`);
@@ -47,7 +49,7 @@ export default {
     },
     addCaption: function() {
       this.processing = true;
-      let url = `http://localhost:3000/caption/${this.imgid}/${this.caption}`;
+      let url = `${config.BASE_URL}/caption/${this.imgid}/${this.caption}`;
       this.showForm = false;
       setTimeout(() => {
         this.imgsrc = url;

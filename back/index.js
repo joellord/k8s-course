@@ -13,13 +13,15 @@ const mysql = require("mysql");
 const APIKEYS = require("./apiKeys");
 const config = require("./config");
 
-const connection = mysql.createConnection({
+const mysqlPoolConfig = {
   host: config.MYSQL_HOST,
   user: config.MYSQL_USER,
   password: config.MYSQL_PASS,
-  database: "images"
-}); 
-connection.connect();
+  database: config.MYSQL_DB,
+  connectionLimit: 100
+}; 
+
+const pool = mysql.createPool(mysqlPoolConfig);
 
 const app = express();
 
@@ -201,14 +203,14 @@ app.get("/caption/:file/:caption", (req, res) => {
 });
 
 app.get("/saved/images", (req, res) => {
-  connection.query("SELECT * FROM images", (err, results, fields) => {
+  pool.query("SELECT * FROM images", (err, results, fields) => {
     if (err) console.log(err);
     res.send(results).status(200);
   });
 });
 
 app.post("/image/:caption/:filename", (req, res) => {
-  connection.query(`INSERT INTO images(caption, filename) VALUES ("${req.params.caption}", "${req.params.filename}-caption.gif");`, (err, results) => {
+  pool.query(`INSERT INTO images(caption, filename) VALUES ("${req.params.caption}", "${req.params.filename}-caption.gif");`, (err, results) => {
     if (err) console.log(err);
     res.send("").status(200);
   });
