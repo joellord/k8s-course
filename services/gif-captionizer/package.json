@@ -1,0 +1,20 @@
+{
+  "name": "gif-captionizer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gif-captionizer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "gif-frames": "^1.0.1",
+    "gifencoder": "^2.0.1",
+    "image-size": "^0.8.3",
+    "jimp": "^0.10.3",
+    "png-file-stream": "^1.2.1"
+  }
+}
