@@ -1,0 +1,25 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cleanup
+spec:
+  schedule: "* * */1 * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: micro-storage
+            persistentVolumeClaim:
+              claimName: micro-pvc
+          containers:
+          - name: cleanup
+            image: registry.access.redhat.com/ubi8/ubi
+            args:
+            - /bin/bash
+            - -c
+            - for d in /tmp/gifcaptionizer/*/ ; do rm -rf "$d"; done
+            volumeMounts:
+            - name: micro-storage
+              mountPath: /tmp/gifcaptionizer
+          restartPolicy: Never
