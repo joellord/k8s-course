@@ -28,14 +28,28 @@ const app = express();
 let serverStatus = {
   status: "running",
   timestamp: 0,
-  ready: false,
   db: false
 };
+
+if (!fs.existsSync("./tmp")){
+  fs.mkdirSync("./tmp");
+}
 
 const getStatus = () => {
   let status = serverStatus;
   status.timestamp = (new Date()).getTime();
-  return status;
+  let promise = new Promise((resolve, reject) => {
+    pool.query("SELECT * FROM images", (err, results, fields) => {
+      if (err) {
+        console.log(err);
+        status.db = false;
+        reject(err);
+      }
+      status.db = true;
+      resolve(status);
+    });
+  });
+  return promise;
 };
 
 function downloadFile(fileUrl, filename) {
@@ -164,7 +178,13 @@ function addCaptionToImage(image, caption) {
 app.use(cors());
 
 app.get("/health", (req, res) => {
-  res.send(getStatus()).status(200);
+  getStatus().then(status => {
+    console.log(status);
+    res.send(status).status(200);
+  }).catch(err => {
+    console.log(err);
+    res.send(err).status(500);
+  });
 });
 
 app.get("/image/:image", (req, res) => {
