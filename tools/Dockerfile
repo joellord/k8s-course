@@ -31,14 +31,17 @@ RUN curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.25.0/m
 RUN mkdir -p /usr/local/bin/
 RUN install minikube /usr/local/bin/
 
-WORKDIR /home/course
-RUN alias pwd='echo $DOCKER_WD'
-COPY start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
-
 EXPOSE 8080
 EXPOSE 3000
 EXPOSE 3001
 EXPOSE 3306
 
-RUN cat "/usr/local/bin/start.sh" >> ~/.bashrc
+# Environment setup
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+RUN adduser course
+COPY ./.bashrc /tmp/bashext
+RUN cat /tmp/bashext >> ~/.bashrc
+RUN cp ~/.bashrc /home/course/.bashrc
+USER course
+WORKDIR /home/course
