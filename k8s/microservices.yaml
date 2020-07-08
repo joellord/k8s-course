@@ -7,17 +7,16 @@ spec:
     storage: 1Gi
   accessModes:
     - ReadWriteOnce
-    - ReadWriteMany
   hostPath:
     path: "/mnt/data"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: micro-pvc
+  name: micro-pvc2
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
@@ -30,31 +29,33 @@ spec:
   template:
     metadata:
       labels:
-        app: udemy-demo
-        section: backend
+        app: k8scourse-demo
+        role: backend
         microservice: microback
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
-      - name: microback
-        image: joellord/udemy-microback
-        env:
-        - name: MYSQL_HOST
-          value: mysql
-        - name: MYSQL_USER
-          value: user
-        - name: MYSQL_PASS
-          value: mysql
-        - name: GIF_CAPTION_SVC
-          value: microgif-captionizer
-        - name: IMAGE_PATH
-          value: /tmp/gifcaptionizer
-        volumeMounts:
-        - name: micro-storage
-          mountPath: /tmp/gifcaptionizer
+        - name: microback
+          image: joellord/k8scourse-microback
+          env:
+            - name: MYSQL_HOST
+              value: mysql
+            - name: MYSQL_USER
+              value: user
+            - name: MYSQL_PASS
+              value: mysql
+            - name: GIF_CAPTION_SVC
+              value: microgifcap
+            - name: IMAGE_PATH
+              value: /tmp/gifcaptionizer
+          volumeMounts:
+            - name: micro-storage
+              mountPath: /tmp/gifcaptionizer
       volumes:
-      - name: micro-storage
-        persistentVolumeClaim:
-          claimName: micro-pvc
+        - name: micro-storage
+          persistentVolumeClaim:
+            claimName: micro-pvc2
   selector:
     matchLabels:
       microservice: microback
@@ -62,39 +63,39 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: microgif-captionizer
+  name: microgifcap
 spec:
   template:
     metadata:
       labels:
-        app: udemy-demo
-        section: backend
-        microservice: microgif-captionizer
+        app: k8scourse-demo
+        role: backend
+        microservice: microgifcap
     spec:
       containers:
-      - name: microgif-captionizer
-        image: joellord/udemy-microgif-captionizer
-        env:
-        - name: IMAGE_PATH
-          value: /tmp/gifcaptionizer
-        volumeMounts:
-        - name: micro-storage
-          mountPath: /tmp/gifcaptionizer
+        - name: microgifcap
+          image: joellord/k8scourse-microgifcap
+          env:
+            - name: IMAGE_PATH
+              value: /tmp/gifcaptionizer
+          volumeMounts:
+            - name: micro-storage
+              mountPath: /tmp/gifcaptionizer
       volumes:
-      - name: micro-storage
-        persistentVolumeClaim:
-          claimName: micro-pvc
+        - name: micro-storage
+          persistentVolumeClaim:
+            claimName: micro-pvc2
   selector:
     matchLabels:
-      microservice: microgif-captionizer
+      microservice: microgifcap
   replicas: 4
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: microback
-  labels: 
-    section: backend
+  labels:
+    role: backend
     microservice: microback
 spec:
   selector:
@@ -107,13 +108,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: microgif-captionizer
-  labels: 
-    section: backend
-    microservice: microgif-captionizer
+  name: microgifcap
+  labels:
+    role: backend
+    microservice: microgifcap
 spec:
   selector:
-    microservice: microgif-captionizer
+    microservice: microgifcap
   ports:
     - protocol: TCP
       port: 80
@@ -124,17 +125,17 @@ kind: Ingress
 metadata:
   name: main
   annotations:
-   nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-  - http:
-      paths:
-        - backend:
-            serviceName: microback
-            servicePort: 80
-          path: /api(/|$)(.*)
-          pathType: Prefix
-        - backend:
-            serviceName: udemy-front
-            servicePort: 80
-          path: /()(.*)
+    - http:
+        paths:
+          - backend:
+              serviceName: microback
+              servicePort: 80
+            path: /api(/|$)(.*)
+            pathType: Prefix
+          - backend:
+              serviceName: k8scourse-front
+              servicePort: 80
+            path: /()(.*)

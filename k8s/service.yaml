@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: udemy-front
-  labels: 
-    section: frontend
+  name: k8scourse-front
+  labels:
+    role: frontend
 spec:
   selector:
-    section: frontend
+    role: frontend
   ports:
     - protocol: TCP
       port: 80

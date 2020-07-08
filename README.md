@@ -1,5 +1,35 @@
 # From Dev To DevOps Wizard
 
+- [From Dev To DevOps Wizard](#from-dev-to-devops-wizard)
+  - [Lesson 1 - Intro](#lesson-1---intro)
+  - [Lesson 2 - Starting the application](#lesson-2---starting-the-application)
+  - [Lesson 3 - Running Your First Container](#lesson-3---running-your-first-container)
+  - [Lesson 4 - Containerize the Back-end](#lesson-4---containerize-the-back-end)
+  - [Lesson 5 - Networking in Docker](#lesson-5---networking-in-docker)
+  - [Lesson 6 - Containerize the front end with a multi-step build](#lesson-6---containerize-the-front-end-with-a-multi-step-build)
+  - [Lesson 7 - Using Environment Variables In Front-End Applications](#lesson-7---using-environment-variables-in-front-end-applications)
+  - [Lesson 8 - Creating non-root images](#lesson-8---creating-non-root-images)
+  - [Lesson 9 - Share images on public registries](#lesson-9---share-images-on-public-registries)
+  - [Lesson 10 - Using Docker Compose To Share An Entire Application](#lesson-10---using-docker-compose-to-share-an-entire-application)
+  - [Lesson 11 - Intro to Kubernetes](#lesson-11---intro-to-kubernetes)
+    - [Cloud-Based Kubernetes](#cloud-based-kubernetes)
+    - [Minikube](#minikube)
+    - [Code Ready Containers](#code-ready-containers)
+    - [Using kubectl](#using-kubectl)
+  - [Lesson 12 - Create your first pod](#lesson-12---create-your-first-pod)
+  - [Lesson 13 - Create a Toolbox pod](#lesson-13---create-a-toolbox-pod)
+  - [Lesson 14 - Create the front-end deployment](#lesson-14---create-the-front-end-deployment)
+  - [Lesson 15 - Create the front end service](#lesson-15---create-the-front-end-service)
+  - [Lesson 16 - Expose Your Application To The Outside World](#lesson-16---expose-your-application-to-the-outside-world)
+  - [Lesson 18 - Use paths to expose multiple services](#lesson-18---use-paths-to-expose-multiple-services)
+  - [Lesson 19 - Change Environment Variables For A Deployment](#lesson-19---change-environment-variables-for-a-deployment)
+  - [Lesson 20 - Persist Data And Volumes](#lesson-20---persist-data-and-volumes)
+  - [Lesson 21 - Deploy Your Database](#lesson-21---deploy-your-database)
+  - [Lesson 22 - Seed the Database And Connect The Backend](#lesson-22---seed-the-database-and-connect-the-backend)
+  - [Lesson 23 - Unmonolithize Your Backend](#lesson-23---unmonolithize-your-backend)
+  - [Lesson 24 - Clean Up Regularly With A Cron Job](#lesson-24---clean-up-regularly-with-a-cron-job)
+  - [Lesson 25 - This Is The End](#lesson-25---this-is-the-end)
+
 ## Lesson 1 - Intro
 
 Hi and welcome to this course on Containerization and Kubernetes Deployment. In this course, you will learn the basics of containers and container orchestration.

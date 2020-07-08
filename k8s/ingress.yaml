@@ -2,7 +2,18 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: main
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
-  backend:
-    serviceName: udemy-front
-    servicePort: 80
+  rules:
+    - http:
+        paths:
+          - backend:
+              serviceName: k8scourse-back
+              servicePort: 80
+            path: /api(/|$)(.*)
+            pathType: Prefix
+          - backend:
+              serviceName: k8scourse-front
+              servicePort: 80
+            path: /()(.*)

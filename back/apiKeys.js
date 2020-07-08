@@ -1,4 +1,4 @@
-const giphyKey = "YOUR_GIPHY_API_KEY";
+const giphyKey = process.env.GIPHY;
 
 module.exports = {
   "GIPHY": giphyKey

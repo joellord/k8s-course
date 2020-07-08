@@ -1,17 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello
+  name: k8scourse-front
+  labels:
+    app: k8scourse-demo
+    role: frontend
 spec:
   template:
     metadata:
       labels:
-        app: hello-demo
+        app: k8scourse-demo
+        role: frontend
     spec:
       containers:
-      - name: server
-        image: nginx:1.17
+        - name: server
+          image: joellord/k8scourse-front
+          env:
+            - name: BASE_URL
+              value: api
+
   selector:
     matchLabels:
-      app: hello-demo
+      role: frontend
   replicas: 2

@@ -7,10 +7,16 @@
   "spec": {
     "containers": [
       {
-        "name": "toolbox", 
+        "name": "toolbox",
         "image": "registry.access.redhat.com/ubi8/ubi",
-        "command": ["/bin/bash", "-c", "--"],
-        "args": ["while true; do sleep 30; done;"]
+        "command": [
+          "/bin/bash",
+          "-c",
+          "--"
+        ],
+        "args": [
+          "while true; do sleep 30; done;"
+        ]
       }
     ]
   }
