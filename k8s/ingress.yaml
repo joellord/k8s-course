@@ -1,8 +1,0 @@
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: main
-spec:
-  backend:
-    serviceName: udemy-front
-    servicePort: 80
