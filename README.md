@@ -8,6 +8,7 @@
   - [Lesson 5 - Networking in Docker](#lesson-5---networking-in-docker)
   - [Lesson 6 - Containerize the front end with a multi-step build](#lesson-6---containerize-the-front-end-with-a-multi-step-build)
   - [Lesson 7 - Using Environment Variables In Front-End Applications](#lesson-7---using-environment-variables-in-front-end-applications)
+  - [Lesson 7b - Using jq to modify environment variables](#lesson-7b---using-jq-to-modify-environment-variables)
   - [Lesson 8 - Creating non-root images](#lesson-8---creating-non-root-images)
   - [Lesson 9 - Share images on public registries](#lesson-9---share-images-on-public-registries)
   - [Lesson 10 - Using Docker Compose To Share An Entire Application](#lesson-10---using-docker-compose-to-share-an-entire-application)
@@ -114,7 +115,9 @@ npm install
 node .
 ```
 
-You can test that the server is running by doing a curl or by opening the browser to [localhost:3000/health](localhost:3000/health). This route should give you the current status of the server.
+This NodeJS backend has a /health route that was built-in by the team that built this application. It can provide you with the status of your API: it checks the status of the server and the database and returns the status and a timestamp. This route can be used to test your server.
+
+You can do so by doing a curl or by opening the browser to [localhost:3000/health](localhost:3000/health).
 
 ```bash
 curl localhost:3000/health
@@ -139,6 +142,8 @@ In this course, I will be using Docker for most of my container management. Dock
 Docker comes with a virtual machine that will let you run containers in any operating system. But it’s interesting to know that they are both 100% equivalent and each command I will be showing here will also work on Podman should you decide to use that alternative instead.
 
 So, what is a container exactly? Well, you can think of a container as a way to package up all of an application, its source code, its configuration and everything else it needs to run into one single package. 
+
+Essentially, imagine one big zip file that would contain your source code or executable along with all the applications required to run it. This way, instead of shipping your source code, you are actually shipping your source code along with a web server pre-configured and ready to use.
 
 Let’s start your first container.
 
@@ -594,7 +599,7 @@ For your front end, a VueJs application has been created from the CLI. VueJS, ju
 
 Once you are ready to deploy this application, you won’t want to use the same code. In fact, you will need to run another script to build a production application. This script will take all of your JavaScript files and merge everything in a single minified JavaScript file. It will do the same for your CSS. By doing so, you will end up with a minimal set of files that can be served over any static file webserver. In this case, you will be using an Nginx server to serve those files. Nginx is an open source, high-performance HTTP server that will be able to handle many requests to your front end.
 
-When building our front end container, we will only want a container that has Nginx and the minimal HTML, CSS and JavaScript files, not the full NodeJs runtimes. This is why we will use a multi-step build. The first step will use a container with NodeJs to create the files and the second step will be our Nginx server with the files.
+When building our front end container, we will only want a container that has Nginx and the minimal HTML, CSS and JavaScript files, not the full NodeJs runtimes. This is why we will use a multi-step build. The first step will use a container with NodeJs to create the files and the second step will be our Nginx server with the files. The container that was used to generate your production files will then be discarded and you will only be left with the second container which is lightweight and optimized for the web.
 
 Just like in our previous examples, your container will need to start with a base image. In order to build our application, we will need Node and NPM so we can start from Node and we will give an alias to this container by using the AS keyword. Create a new front/Dockerfile and start with the FROM statement.
 
@@ -687,52 +692,15 @@ To solve this issue, we would need to use environment variables. But this will c
 
 In the previous lesson, we managed to put all of our front-end in a container and we can now distribute this container to the rest of our team. This will work well with stand-alone websites but as soon as you need to connect to an API, this could become an issue. You will need to specify the base URL of your server and this would need to be done as an environment variable. The problem here is that since our application lives in a browser, it can’t read the environment variables from the server.
 
-There are a few solutions to this problem. First, you could run a NodeJs server and serve your files from there. This way, you could add an additional /config route to your server. This route would return an object containing all the configuration from the environment variables. 
-
-```javascript
-app.get("/config", (req, res) => {
-  res.send({ BASE_URL: process.env.BASE_URL }).status(200);
-});
-```
-
-This could work but requires many changes in our architecture. First, we won’t be using an Nginx server anymore which will be a performance decrease. And next, we need to make sure that our front end calls this configuration route before anything else to avoid running into race conditions. 
-
-Another option would be to use another language to render a page from the server. PHP could do a great job at this. The index.html can be renamed to a .php file and using a little bit of PHP, you can render the page with the environment variables. 
-
-```php
-<script>
-const BASE_URL = <?= $_ENV["BASE_URL"] ?>
-</script>
-```
-
-Once again, we would need to change the server type as Nginx alone can’t render PHP files. We would also need to change the template from our application to use a PHP file instead. And finally, well, we’re mixing up languages.
-
-Those solutions require some changes in your actual code base and to the way you are used to doing things. A better solution might be to do everything through a Dockerfile. We are already using Docker to initiate our build process. By adding a few commands, we can change those variables to something more generic in our build process. And then, just before our server starts, we can inject the environment variables into our configuration. This way, we don’t need to change anything in our development environment and we can keep our Nginx server for high performance and small footstep.  This is what we’ll do in this lesson.
+Thankfully, there is a way to do everything through a Dockerfile. We are already using Docker to initiate our build process. By adding a few commands, we can change those variables to something more generic in our build process. And then, just before our server starts, we can inject the environment variables into our configuration. This way, we don’t need to change anything in our development environment and we can keep our Nginx server for high performance and small footstep.  This is what we’ll do in this lesson.
 
 In the last lesson, you’ve seen that all requests were made to http://localhost:3000. This means that this value was hard-coded somewhere in the front end source code. The first thing you will want to do is to find out where this was coded and make sure that it is only defined in one place. If you do a search for localhost:3000, you will see that it is only defined in one place. That’s good, half the work is done already. You will only need to modify the front/src/config.json file. But this value works well for our local development environment and maybe other developers on your team are using different values. For this reason, you will leave this value hard-coded in there, and you will change it as part of the build process in the Dockerfile.
 
-To change this value, we will use jq. Jq is a command-line tool that makes it easy to change values in a JSON file. The base image that we used for building the application does not contain this tool, but that is not an issue. Because a container is essentially just like a Linux machine, you can install the software in your image and then use this tool to perform various operations. To install jq, you will need to download the binary. To make it easier to eventually upgrade it is there is a security vulnerability of some sort, you can add the version number as an environment variable. You can specify this variable with the ENV keyword. This should be added right after the WORKDIR line from your existing Dockerfile
-
-```docker
-# Dockerfile
-[...]
-WORKDIR /app
-ENV JQ_VERSION=1.5
-```
-
-Next, you can download jq from the Github repository https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64. Note how the JQ_VERSION environment variable is used in the URL. Jq will be downloaded using wget which is already installed in the base image. You will also need to specify wget to ignore certificates and to output the content of this URL into a file in the /tmp folder. Next, you will copy this binary file into the /usr/bin folder so that it is now in the default path for executables. And finally, you must change the permissions on that file so that is can be executed. This is done with the chmod command.
-
-```docker
-RUN wget --no-check-certificate https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64 -O /tmp/jq-linux64
-RUN cp /tmp/jq-linux64 /usr/bin/jq
-RUN chmod +x /usr/bin/jq
-```
-
-Now that jq is installed, you will be able to use it to change the value of the BASE_URL property of the config.json file. To do so, change the working directory to the /app/src folder and then use RUN to execute the following command. First, we tell jq to execute the command jq '.BASE_URL = "$BASE_URL"' config.json. This finds the BASE_URL property in the config.json file and replaces the value of it with "$BASE_URL". The output is then stored in a variable called $contents. Once this is done, you can echo the content of this variable back into the config.json file to overwrite the content of the existing file. These Docker instructions should be placed right after the jq installation lines.
+To do so, you will use the a bash command. `sed` is a Linux utility that can be used to substitute some text in a file.
 
 ```docker
 WORKDIR /app/src
-RUN contents="$(jq '.BASE_URL = "$BASE_URL"' config.json)" && echo ${contents} > config.json
+RUN sed -i 's/http:\/\/localhost:3000/\$BASE_URL/' config.json
 ```
 
 The result will be to change the config.json file to now have the following content.
@@ -743,7 +711,7 @@ The result will be to change the config.json file to now have the following cont
 }
 ```
 
-There are easier ways to do this. You could’ve simply overwritten the config.json file with the given content. The nice thing with jq is that you only changed the value of one of the JSON properties. If your developer team added more values to this file, the script in the Dockerfile won’t change the rest of the file. This makes it a safer way to change only the values that need to change in this file. You could also add more jq commands to overwrite other values in this config.json file that you need to overwrite with environment variables.
+This replacement works well when there is a single environment variable like in this example. However, if you want a solution that is more future-proof, it will be introduced in the next lesson.
 
 Now that your configuration file has been changed to a generic value, you can run your npm install and build scripts. This will create all the minified CSS and JS files, with this generic value.
 
@@ -781,13 +749,8 @@ Your full Dockerfile should now look like this
 # Dockerfile
 FROM node:14 AS builder
 COPY . /app
-WORKDIR /app
-ENV JQ_VERSION=1.5
-RUN wget --no-check-certificate https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64 -O /tmp/jq-linux64
-RUN cp /tmp/jq-linux64 /usr/bin/jq
-RUN chmod +x /usr/bin/jq
 WORKDIR /app/src
-RUN contents="$(jq '.BASE_URL = "$BASE_URL"' config.json)" && echo ${contents} > config.json
+RUN sed -i 's/http:\/\/localhost:3000/\$BASE_URL/' config.json
 WORKDIR /app
 RUN npm install
 RUN npm run build
@@ -829,6 +792,67 @@ exit
 ```
 
 You will need to do some small changes to your Dockerfiles to ensure that you are not running as root anymore. This will be done in the next lesson.
+
+## Lesson 7b - Using jq to modify environment variables
+
+This lesson uses some advanced concepts to build a better Dockerfile but feel free to ignore this lesson and come back to it later on if needed.
+
+In the last lesson, you saw how to use `sed` to overwrite the hard-coded path to the API. This works well when there is a single value to replace. Now if one of your team members replaced the value of localhost:3000, your build will break. There is a better solution to do this but it involves adding a new software into that first container.
+
+To change this value, we will use jq. Jq is a command-line tool that makes it easy to change values in a JSON file. The base image that we used for building the application does not contain this tool, but that is not an issue. Because a container is essentially just like a Linux machine, you can install the software in your image and then use this tool to perform various operations. To install jq, you will need to download the binary. To make it easier to eventually upgrade it is there is a security vulnerability of some sort, you can add the version number as an environment variable. You can specify this variable with the ENV keyword. This should be added right after the WORKDIR line from your existing Dockerfile
+
+```docker
+# Dockerfile
+[...]
+WORKDIR /app
+ENV JQ_VERSION=1.5
+```
+
+Next, you can download jq from the Github repository https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64. Note how the JQ_VERSION environment variable is used in the URL. Jq will be downloaded using wget which is already installed in the base image. You will also need to specify wget to ignore certificates and to output the content of this URL into a file in the /tmp folder. Next, you will copy this binary file into the /usr/bin folder so that it is now in the default path for executables. And finally, you must change the permissions on that file so that is can be executed. This is done with the chmod command.
+
+```docker
+RUN wget --no-check-certificate https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64 -O /tmp/jq-linux64
+RUN cp /tmp/jq-linux64 /usr/bin/jq
+RUN chmod +x /usr/bin/jq
+```
+
+Now that jq is installed, you will be able to use it to change the value of the BASE_URL property of the config.json file. To do so, change the working directory to the /app/src folder and then use RUN to execute the following command. First, we tell jq to execute the command jq '.BASE_URL = "$BASE_URL"' config.json. This finds the BASE_URL property in the config.json file and replaces the value of it with "$BASE_URL". The output is then stored in a variable called $contents. Once this is done, you can echo the content of this variable back into the config.json file to overwrite the content of the existing file. These Docker instructions should be placed right after the jq installation lines.
+
+```docker
+WORKDIR /app/src
+RUN contents="$(jq '.BASE_URL = "$BASE_URL"' config.json)" && echo ${contents} > config.json
+```
+
+Finally, you can remove the line that used `sed` to do the substitution.
+
+The nice thing with jq is that you only changed the value of one of the JSON properties. If your developer team added more values to this file, the script in the Dockerfile won’t change the rest of the file. This makes it a safer way to change only the values that need to change in this file. You could also add more jq commands to overwrite other values in this config.json file that you need to overwrite with environment variables.
+
+
+Your full Dockerfile should now look like this
+
+```docker
+# Dockerfile
+FROM node:14 AS builder
+COPY . /app
+WORKDIR /app
+ENV JQ_VERSION=1.5
+RUN wget --no-check-certificate https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64 -O /tmp/jq-linux64
+RUN cp /tmp/jq-linux64 /usr/bin/jq
+RUN chmod +x /usr/bin/jq
+WORKDIR /app/src
+RUN contents="$(jq '.BASE_URL = "$BASE_URL"' config.json)" && echo ${contents} > config.json
+WORKDIR /app
+RUN npm install
+RUN npm run build
+FROM nginx:1.17
+WORKDIR /usr/share/nginx/html
+COPY --from=builder /app/dist .
+COPY start_nginx.sh /
+RUN chmod +x /start_nginx.sh
+ENTRYPOINT ["/start_nginx.sh"]
+```
+
+This makes for a Dockerfile that is a little bit more robust and more future-proof.
 
 ## Lesson 8 - Creating non-root images
 
