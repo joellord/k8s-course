@@ -54,7 +54,7 @@ All examples will run in a Linux operating system. They have been tested success
     - [Lesson 8 - Creating non-root images](01-08-non-root.md)
     - [Lesson 9 - Share images on public registries](01-09-share-images.md)
     - [Lesson 10 - Using Docker Compose To Share An Entire Application](01-10-docker-compose.md)
-  Part 2 - Kubernetes
+  - Part 2 - Kubernetes
     - [Lesson 1 - Intro to Kubernetes](02-01-intro.md)
     - [Lesson 2 - Create your first pod](02-02-pod.md)
     - [Lesson 3 - Create a Toolbox pod](02-03-toolbox.md)
