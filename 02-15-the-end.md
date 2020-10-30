@@ -1,0 +1,11 @@
+# Lesson 15 - This Is The End
+
+Hopefully, you managed to deploy everything in your Kubernetes cluster and you now have a good basis to be able to reproduce this in your work environment. A lot of content was covered during this course. You should now have a better understanding of what containers are and how they can be used to help you deploy your application. They can also be very handy to ensure that everyone on your team uses the same versions of all the runtimes.
+
+You should also be more comfortable with the basics of Kubernetes. You’ve seen what pods are and how to use deployments to ensure that you always have a certain number of them up and running. You’ve also seen how networking is done and how services will help you find the pods and distribute the load amongst them. Finally, you’ve also explored multiple objects like ingresses to expose your cluster, persistent volume claims to persist your data and cron jobs to run scheduled tasks.
+
+That is a lot but there is still a lot more that you can do with your Kubernetes cluster. For your next steps, you should look at using secrets to avoid storing passwords in your GitHub repository. You should also look at Tekton pipelines. Those will help you to integrate CI/CD directly inside your Kubernetes cluster. Finally, you should also look at liveness and readiness probes, those will make your architecture more robust and production-ready.
+
+Everything that was demonstrated in this course should run on any Kubernetes cluster. It will also run on an OpenShift cluster. OpenShift is Red Hat’s distribution of Kubernetes. It includes everything that you’ve seen in this course as well as many more functionalities. The first one that comes in mind is a nice UI that will let you visualize all the components that you’ve created so far and let you configure and manipulate them in a way that is much easier than the command-line tool you’ve used all along so far. For more information on OpenShift, you can go to [openshift.com](openshift.com).
+
+With that, thank you for following along, I hope you enjoyed this course and if you have any questions or comments, feel free to reach out via Twitter at [@joel__lord](https://twitter.com/joel__lord).
