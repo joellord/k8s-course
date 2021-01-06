@@ -1,12 +1,34 @@
 # Lesson 6 - Containerize the front end with a multi-step build
 
+## Mini talk intro
+
 In the last lessons, you saw how to use containers and how to create one for your backend. Now is the time to see more advanced container images. In this lesson, we will actually use a container to build our container. This is called a multi-stage build. 
 
-For your front end, a VueJs application has been created from the CLI. VueJS, just like React and Angular applications have a development mode as well as a production mode. When you started the front end at the beginning of this course, you’ve used "npm run serve". This is a development server that is built with NodeJs. It watches your files for changes and is optimized to recompile the application and refresh your browser automatically. This is great for development. 
+For your front end, a VueJs application has been created from the CLI. VueJS, just like React and Angular applications have a development mode as well as a production mode. When you started the front end at the beginning of this course, you’ve used "npm run serve". This is a development server that is built with NodeJs. It watches your files for changes and is optimized to recompile the application and refresh your browser automatically. 
 
-Once you are ready to deploy this application, you won’t want to use the same code. In fact, you will need to run another script to build a production application. This script will take all of your JavaScript files and merge everything in a single minified JavaScript file. It will do the same for your CSS. By doing so, you will end up with a minimal set of files that can be served over any static file webserver. In this case, you will be using an Nginx server to serve those files. Nginx is an open source, high-performance HTTP server that will be able to handle many requests to your front end.
+When you are building a React application, you have a similar setup. You can use the `create-react-app` CLI tool to build the skeleton for your application. This skeleton will include, not only the base files for your application but also a full development environment with a server that watches your files for changes and refreshes your browser automatically.
 
-When building our front end container, we will only want a container that has Nginx and the minimal HTML, CSS and JavaScript files, not the full NodeJs runtimes. This is why we will use a multi-step build. The first step will use a container with NodeJs to create the files and the second step will be our Nginx server with the files. The container that was used to generate your production files will then be discarded and you will only be left with the second container which is lightweight and optimized for the web.
+These tools are great for development purposes. It makes it much quicker to see the resulting application and is better suited for debugging.
+
+Once you are ready to deploy this application though, you won’t want to use the same setup. This development environment is somewhat slow and has a lot of code that is not used. There is no need to watch your files for changes in production as they shouldn't change. 
+
+Ideally, for your production server, you would like to ship a minified version of your code. This will cut down the download time to see the initial page. Some build scripts will even perform tree shaking which is a method to find all the code that is not used in your application and simply remove it. Some CSS frameworks and tooling like Tailwind can also check your code for unused classes and remove them. Finally, you will want your application to be usable by the greatest number of users possible so you might need to do add some additional prefixes to your CSS styling or some patches to support some JavaScript features on older browsers.
+
+To do this, you will need to run a script to build your production application. This script will take all of your JavaScript files and merge everything in a single minified JavaScript file. It will do the same for your CSS. It might also perform some transpiling and other tasks like tree-shaking for you.
+
+By doing so, you will end up with a minimal set of files. Typically, a single HTML, JavaScript and CSS file for a total of only three files to download. These files can then be hosted just about anywhere.
+
+Since this course is about containers, you will be using an Nginx container to serve those files. Nginx is an open source, high-performance HTTP server that will be able to handle many requests to your front end.
+
+When building our front end container, we will only want a container that has Nginx and the minimal HTML, CSS and JavaScript files, not the full NodeJs runtimes and source code. 
+
+This is why we will use a multi-step build. The first step will use a container with NodeJs to create the files. It's sole purpose is to run the build script to create that production version. The second step will create your Nginx server with the three files that were generated in the first step. 
+
+The container that was used to generate your production files will then be discarded and you will only be left with the second container which is lightweight and optimized for the web.
+
+You can use multi stage containers to perform various operations on your source code and the copy the output to the next step. You can even create your own CI/CD pipelines by running multiple steps inside a Docker build. The resulting image will only be the last image that was created and all the additional overhead from the previous steps is discarded.
+
+## Lesson script
 
 Just like in our previous examples, your container will need to start with a base image. In order to build our application, we will need Node and NPM so we can start from Node and we will give an alias to this container by using the AS keyword. Create a new front/Dockerfile and start with the FROM statement.
 

@@ -1,6 +1,10 @@
 # Lesson 5 - Networking in Docker
 
-In the last lesson, our backend stopped working again because it couldn’t find the database. That’s might seem out, especially since we fixed a similar issue in a previous lesson. 
+## Mini talk intro
+
+In the last lesson, our backend stopped working again because it couldn’t find the database. That might seem odd, especially since we fixed a similar issue in a previous lesson. 
+
+Well, it actually makes a lot of sense when you think about it.
 
 One of the advantages of running containers is that they run in isolation. As far as the container is concerned, nothing exists outside of it. It behaves as if it was its own operating system. This is why the backend can’t find the database on "localhost". The two containers are running on the same host but as far as the backend is concerned, there is no database. The same goes for the database. It can’t see anything outside of what is running in its container therefore it can’t see the backend application running.
 
@@ -79,7 +83,11 @@ From here, you can try to do a ping to the container called "two" again.
 ping two
 ```
 
-And you should see that the container is successfully pinged. Docker also added the names of the containers to the internal host list so you don’t have to learn the IP addresses of the containers, you can reach them by their name. You are now ready to apply those same principles to your application. First, start by creating the k8scourse network. Then, start your database with the additional --network parameter. And finally, start your backend with the --network parameter as well.
+And you should see that the container is successfully pinged. Docker also added the names of the containers to the internal host list so you don’t have to learn the IP addresses of the containers, you can reach them by their name. You are now ready to apply those same principles to your application. 
+
+## Lesson script
+
+First, start by creating the k8scourse network. Then, start your database with the additional --network parameter. And finally, start your backend with the --network parameter as well.
 
 ```bash
 docker network create k8scourse
