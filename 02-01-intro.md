@@ -13,12 +13,6 @@ But before you can configure kubectl, you will need a Kubernetes cluster that yo
 ### Cloud-Based Kubernetes
 Most major cloud providers offer a variant of Kubernetes. While each implementation tends to be slightly different, the examples provided in the next lessons should be working on each one of these using the kubectl tool.
 
-My favourite provider is Digital Ocean, you can start a 10$/month Kubernetes cluster with a few clicks and you can get 100$ in free credits with the following URL: [http://ezurl.to/digitalocean](http://ezurl.to/digitalocean).
-
-Follow the instructions on the screen to create a single-node Kubernetes cluster. Once your cluster is created, follow the instructions from [https://www.digitalocean.com/docs/kubernetes/how-to/connect-to-cluster/](https://www.digitalocean.com/docs/kubernetes/how-to/connect-to-cluster/) to connect kubectl to your cluster and you should be good to go.
-
-Most major providers can also offer Kubernetes clusters although they tend to be slightly more expensive.
-
 ### Minikube
 Minikube is a tool to run a tiny Kubernetes instance on your laptop. You would typically run minikube if you wanted to test out your setup in a local environment. It is lightweight and is easy to use. Once you’ve installed minikube, you can use the command start to start a local Kubernetes cluster and automatically configure kubectl to use this cluster.
 
